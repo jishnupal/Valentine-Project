@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RomCom Premiere Builder</title>
+  <style>
+    :root{
+      --bg:#0f1014;
+      --panel:#171922;
+      --panel-2:#1f2330;
+      --line:#303647;
+      --text:#f6f7fb;
+      --muted:#aab0c0;
+      --soft:#d8dce7;
+      --red:#e50914;
+      --rose:#ff4d8d;
+      --teal:#4bd7c8;
+      --amber:#f5b84b;
+      --ok:#65d18e;
+      --danger:#ff6b6b;
+      --shadow:0 24px 70px rgba(0,0,0,.34);
+      --radius:8px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        linear-gradient(135deg, rgba(229,9,20,.16), transparent 32%),
+        linear-gradient(225deg, rgba(75,215,200,.12), transparent 34%),
+        var(--bg);
+      color:var(--text);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing:0;
+    }
+
+    button, input, textarea{
+      font:inherit;
+      letter-spacing:0;
+    }
+
+    button{
+      border:0;
+      border-radius:var(--radius);
+      color:var(--text);
+      background:#2a3040;
+      padding:11px 14px;
+      font-weight:800;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.1);
+      transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+
+    button:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,.22); }
+    button:active{ transform:translateY(0); }
+    button:disabled{ opacity:.48; cursor:not-allowed; transform:none; }
+
+    .primary{
+      background:linear-gradient(135deg, var(--red), #ff335e);
+      box-shadow:0 16px 36px rgba(229,9,20,.22);
+    }
+
+    .quiet{ background:rgba(255,255,255,.06); }
+    .danger{ background:rgba(255,107,107,.12); color:#ffd8d8; }
+
+    input, textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#11141c;
+      color:var(--text);
+      padding:11px 12px;
+      outline:none;
+      resize:vertical;
+    }
+
+    input:focus, textarea:focus{
+      border-color:rgba(255,77,141,.72);
+      box-shadow:0 0 0 3px rgba(255,77,141,.12);
+    }
+
+    label{
+      display:block;
+      color:var(--soft);
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:7px;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:300px minmax(0,1fr);
+      min-height:100vh;
+    }
+
+    .sidebar{
+      border-right:1px solid rgba(255,255,255,.08);
+      background:rgba(10,11,16,.72);
+      backdrop-filter:blur(18px);
+      padding:22px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      margin-bottom:22px;
+    }
+
+    .mark{
+      width:36px;
+      height:36px;
+      border-radius:8px;
+      background:linear-gradient(135deg, var(--red), var(--rose));
+      box-shadow:0 14px 34px rgba(229,9,20,.25);
+    }
+
+    .brand strong{ display:block; font-size:16px; }
+    .brand span{ display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+
+    .privacy{
+      padding:13px;
+      background:rgba(75,215,200,.08);
+      border:1px solid rgba(75,215,200,.22);
+      border-radius:var(--radius);
+      color:#d9fffb;
+      font-size:13px;
+      line-height:1.45;
+      margin-bottom:18px;
+    }
+
+    .steps{
+      display:grid;
+      gap:8px;
+    }
+
+    .step{
+      display:grid;
+      grid-template-columns:28px 1fr auto;
+      gap:10px;
+      align-items:center;
+      width:100%;
+      text-align:left;
+      background:transparent;
+      color:var(--muted);
+      border:1px solid transparent;
+      padding:10px;
+      border-radius:var(--radius);
+    }
+
+    .step:hover{ background:rgba(255,255,255,.05); }
+    .step.active{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.14);
+      color:var(--text);
+    }
+
+    .stepIndex{
+      width:28px;
+      height:28px;
+      border-radius:8px;
+      display:grid;
+      place-items:center;
+      background:#222838;
+      color:var(--soft);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .step.done .stepIndex{ background:rgba(101,209,142,.16); color:#bdf5d0; }
+    .step small{ display:block; color:var(--muted); margin-top:2px; font-size:11px; font-weight:700; }
+
+    .statusDot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:var(--amber);
+    }
+
+    .step.done .statusDot{ background:var(--ok); }
+
+    .main{
+      min-width:0;
+      padding:28px;
+    }
+
+    .topbar{
+      max-width:1180px;
+      margin:0 auto 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .saveState{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .workspace{
+      max-width:1180px;
+      margin:0 auto;
+      background:rgba(23,25,34,.88);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .pageHead{
+      padding:24px 26px 18px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
+    }
+
+    h1, h2, h3, p{ margin:0; }
+    h1{ font-size:30px; line-height:1.08; }
+    h2{ font-size:21px; line-height:1.2; }
+    h3{ font-size:16px; line-height:1.2; }
+
+    .lede{
+      color:var(--muted);
+      line-height:1.55;
+      margin-top:8px;
+      max-width:720px;
+    }
+
+    .content{
+      padding:24px 26px 26px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .grid3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field{ margin-bottom:15px; }
+    .field small{ display:block; color:var(--muted); margin-top:6px; line-height:1.4; }
+
+    .tileCard{
+      background:var(--panel-2);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:var(--radius);
+      padding:16px;
+    }
+
+    .metric{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+    }
+
+    .metric strong{ font-size:28px; }
+    .metric span{ color:var(--muted); font-size:13px; font-weight:800; }
+
+    .episodeLayout{
+      display:grid;
+      grid-template-columns:310px minmax(0,1fr);
+      gap:18px;
+    }
+
+    .episodeList{
+      display:grid;
+      gap:8px;
+    }
+
+    .episodeItem{
+      width:100%;
+      display:grid;
+      grid-template-columns:42px minmax(0,1fr) auto;
+      gap:10px;
+      align-items:center;
+      text-align:left;
+      background:#141821;
+      border:1px solid rgba(255,255,255,.09);
+      padding:10px;
+    }
+
+    .episodeItem.active{
+      border-color:rgba(255,77,141,.55);
+      background:rgba(255,77,141,.08);
+    }
+
+    .thumb{
+      width:42px;
+      height:42px;
+      border-radius:8px;
+      object-fit:cover;
+      background:#0c0e13;
+      display:grid;
+      place-items:center;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      overflow:hidden;
+    }
+
+    .episodeItem strong{
+      display:block;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:13px;
+    }
+
+    .episodeItem span{
+      display:block;
+      color:var(--muted);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      margin-top:2px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .badge{
+      font-size:11px;
+      font-weight:900;
+      color:#ffe8a8;
+      background:rgba(245,184,75,.12);
+      border:1px solid rgba(245,184,75,.22);
+      padding:4px 7px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .badge.ready{
+      color:#c9f8d8;
+      background:rgba(101,209,142,.12);
+      border-color:rgba(101,209,142,.24);
+    }
+
+    .mediaGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:12px;
+    }
+
+    .dropzone{
+      border:1px dashed rgba(255,255,255,.24);
+      border-radius:var(--radius);
+      background:#11141c;
+      min-height:210px;
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .dropzone.ready{
+      border-style:solid;
+      border-color:rgba(101,209,142,.32);
+    }
+
+    .preview{
+      height:126px;
+      border-radius:8px;
+      background:#090b10;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      text-align:center;
+      padding:10px;
+    }
+
+    .preview img, .preview video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .preview audio{ width:100%; }
+
+    .dropMeta{
+      min-height:42px;
+    }
+
+    .dropMeta strong{ display:block; font-size:14px; }
+    .dropMeta span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      margin-top:4px;
+    }
+
+    .whyNote{
+      margin-top:8px;
+      padding:8px 9px;
+      border-radius:8px;
+      background:rgba(75,215,200,.08);
+      border:1px solid rgba(75,215,200,.16);
+      color:#d7fffb;
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .dropActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .fileLabel{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:var(--radius);
+      background:#2a3040;
+      border:1px solid rgba(255,255,255,.1);
+      color:var(--text);
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:900;
+      font-size:13px;
+      margin:0;
+    }
+
+    .hiddenInput{ display:none; }
+
+    .footerNav{
+      padding:18px 26px;
+      border-top:1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      background:rgba(10,11,16,.28);
+    }
+
+    .checkList{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .checkItem{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:12px;
+      align-items:center;
+      background:#141821;
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:var(--radius);
+      padding:12px;
+    }
+
+    .checkIcon{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:rgba(245,184,75,.16);
+      color:#ffe8a8;
+      display:grid;
+      place-items:center;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .checkItem.ready .checkIcon{
+      background:rgba(101,209,142,.16);
+      color:#c9f8d8;
+    }
+
+    .muted{ color:var(--muted); }
+    .stack{ display:grid; gap:14px; }
+    .wide{ grid-column:1 / -1; }
+
+    .referenceShot{
+      margin-top:16px;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:var(--radius);
+      background:#10131b;
+      padding:14px;
+    }
+
+    .referenceCanvas{
+      display:grid;
+      grid-template-columns:160px 1fr;
+      gap:14px;
+      align-items:stretch;
+      margin-top:12px;
+    }
+
+    .referencePoster, .referencePlayer{
+      min-height:118px;
+      border-radius:8px;
+      background:
+        linear-gradient(180deg, transparent, rgba(0,0,0,.72)),
+        linear-gradient(135deg, rgba(229,9,20,.55), rgba(255,77,141,.26));
+      border:1px solid rgba(255,255,255,.12);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+
+    .referencePlayer{
+      background:#07080c;
+      display:grid;
+      place-items:center;
+      color:var(--muted);
+      font-weight:900;
+    }
+
+    .includedAsset{
+      display:grid;
+      grid-template-columns:42px 1fr auto;
+      align-items:center;
+      gap:12px;
+      background:#141821;
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:var(--radius);
+      padding:12px;
+    }
+
+    @media (max-width:980px){
+      .app{ grid-template-columns:1fr; }
+      .sidebar{
+        position:relative;
+        height:auto;
+        border-right:0;
+        border-bottom:1px solid rgba(255,255,255,.08);
+      }
+      .steps{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .episodeLayout, .grid2, .grid3, .mediaGrid{ grid-template-columns:1fr; }
+      .main{ padding:16px; }
+      .pageHead{ flex-direction:column; }
+    }
+
+    @media (max-width:560px){
+      .steps{ grid-template-columns:1fr; }
+      .topbar{ align-items:flex-start; flex-direction:column; }
+      .actions{ justify-content:flex-start; }
+      h1{ font-size:25px; }
+      .content, .pageHead, .footerNav{ padding-left:16px; padding-right:16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const TEMPLATE_STORAGE_KEY = "romcom-template-settings-v1";
+    const DB_NAME = "romcom-template-media-v1";
+    const DB_STORE = "media";
+
+    const steps = [
+      { id:"overview", title:"Overview", sub:"Project status" },
+      { id:"basics", title:"Basics", sub:"Name and opening" },
+      { id:"episodes", title:"Episodes", sub:"Edit one by one" },
+      { id:"finale", title:"Finale", sub:"Last scene" },
+      { id:"sound", title:"Sound", sub:"Optional assets" },
+      { id:"review", title:"Review", sub:"Launch preview" }
+    ];
+
+    const defaultConfig = {
+      viewerName:"Viewer",
+      heroTitle:"Tonight's Valentine Premiere",
+      heroSubtitle:"A personalized romcom made for one special viewer.",
+      viewerPrompt:"Ready for your private screening?",
+      viewerConfirm:"Start the episodes",
+      homeGreeting:"Hello",
+      homeSubtitle:"Six custom episodes. Start from Episode 1.",
+      episodesTitle:"Personalized Episodes",
+      episodesMeta:"6 episodes, 1 question, 1 video each",
+      finaleTitle:"Will you be my Valentine?",
+      finaleSubtitle:"This premiere has only one ending: a story made just for you.",
+      creditsTitle:"Favorite Scenes",
+      creditsSubtitle:"A little universe of memories",
+      endTitle:"The beginning",
+      endSubtitle:"The end credits are only the start.",
+      cinematicLines:[
+        "Every story has a beginning.",
+        "Some moments become memories.",
+        "Some memories become a whole little universe.",
+        "And now... it leads to this."
+      ],
+      episodes:[
+        { title:"Episode 1 - First Memory", tag:"Beginning", desc:"A moment that started the story.", question:"Do you want to continue this story with me?" },
+        { title:"Episode 2 - A Special Day", tag:"Special", desc:"The date that changed the timeline.", question:"Can we keep choosing each other in the ordinary days too?" },
+        { title:"Episode 3 - A Favorite Adventure", tag:"Adventure", desc:"A place, a trip, or a memory worth replaying.", question:"Will you keep making new adventures with me?" },
+        { title:"Episode 4 - A Cozy Moment", tag:"Comfort", desc:"The kind of memory that feels like home.", question:"Will you let me be your comfort on the difficult days?" },
+        { title:"Episode 5 - Celebration", tag:"Celebration", desc:"A day that deserves its own scene.", question:"Will you celebrate the next chapter with me?" },
+        { title:"Episode 6 - Finale Memory", tag:"Finale", desc:"The scene before the big question.", question:"Are you ready for the finale?" }
+      ]
+    };
+
+    const mediaSlots = [
+      ...Array.from({ length:6 }, (_, i) => ({
+        key:`tile${i+1}.jpg`,
+        type:"image",
+        required:true,
+        group:"episode",
+        episode:i,
+        title:`Episode ${i+1} cover image`,
+        help:"This becomes the poster card people see before opening the episode."
+      })),
+      ...Array.from({ length:6 }, (_, i) => ({
+        key:`ep${i+1}.mp4`,
+        type:"video",
+        required:true,
+        group:"episode",
+        episode:i,
+        title:`Episode ${i+1} video`,
+        help:"This is the private memory video that plays inside this episode."
+      })),
+      ...Array.from({ length:5 }, (_, i) => ({
+        key:`M${i+1}.jpg`,
+        type:"image",
+        required:false,
+        group:"credits",
+        title:`Credits memory ${i+1}`,
+        help:"Optional photo for the final montage after the big moment."
+      })),
+      { key:"bgm.mp3", type:"audio", required:false, group:"sound", title:"Background music", help:"Optional song that loops softly behind the full experience." }
+    ];
+
+    const includedTemplateAssets = [
+      { title:"Intro clip", path:"assets/template/netflix_intro.mp4", note:"Included so every template starts with a polished premiere-style transition." },
+      { title:"Interaction sound", path:"assets/template/sparkle.mp3", note:"Included for button clicks and small UI moments." },
+      { title:"Finale celebration sound", path:"assets/template/celebration.mp3", note:"Included for the final montage after the viewer says yes." }
+    ];
+
+    const state = {
+      step:"overview",
+      episode:0,
+      config:readConfig(),
+      media:{},
+      saveText:"Auto-saved"
+    };
+
+    const app = document.getElementById("app");
+
+    function clone(value){
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function readConfig(){
+      const config = clone(defaultConfig);
+      try{
+        const saved = JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || "null");
+        if(saved && saved.templateConfig){
+          Object.assign(config, saved.templateConfig);
+        }
+        if(saved && Array.isArray(saved.episodes)){
+          saved.episodes.forEach((episode, index) => {
+            if(!config.episodes[index]) return;
+            Object.assign(config.episodes[index], episode);
+          });
+        }
+      }catch(e){}
+      return config;
+    }
+
+    function saveConfig(){
+      const { episodes, ...templateConfig } = state.config;
+      localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify({
+        templateConfig,
+        episodes:episodes.map(({ title, desc, tag, question }) => ({ title, desc, tag, question }))
+      }));
+      setSaved();
+    }
+
+    function setSaved(text="Auto-saved"){
+      state.saveText = text;
+      const el = document.getElementById("saveState");
+      if(el) el.textContent = state.saveText;
+    }
+
+    function openDb(){
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if(!db.objectStoreNames.contains(DB_STORE)){
+            db.createObjectStore(DB_STORE, { keyPath:"key" });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function dbRequest(mode, callback){
+      const db = await openDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, mode);
+        const store = tx.objectStore(DB_STORE);
+        const request = callback(store);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+        tx.oncomplete = () => db.close();
+      });
+    }
+
+    async function loadMedia(){
+      try{
+        const records = await dbRequest("readonly", store => store.getAll());
+        records.forEach(record => {
+          state.media[record.key] = {
+            key:record.key,
+            name:record.name,
+            type:record.type,
+            size:record.size,
+            updatedAt:record.updatedAt,
+            url:URL.createObjectURL(record.file)
+          };
+        });
+      }catch(e){}
+    }
+
+    async function saveMedia(key, file){
+      await dbRequest("readwrite", store => store.put({
+        key,
+        file,
+        name:file.name,
+        type:file.type,
+        size:file.size,
+        updatedAt:Date.now()
+      }));
+      if(state.media[key] && state.media[key].url) URL.revokeObjectURL(state.media[key].url);
+      state.media[key] = {
+        key,
+        name:file.name,
+        type:file.type,
+        size:file.size,
+        updatedAt:Date.now(),
+        url:URL.createObjectURL(file)
+      };
+      setSaved("Media saved locally");
+    }
+
+    async function removeMedia(key){
+      await dbRequest("readwrite", store => store.delete(key));
+      if(state.media[key] && state.media[key].url) URL.revokeObjectURL(state.media[key].url);
+      delete state.media[key];
+      setSaved("Media removed");
+    }
+
+    async function clearMedia(){
+      await dbRequest("readwrite", store => store.clear());
+      Object.values(state.media).forEach(record => record.url && URL.revokeObjectURL(record.url));
+      state.media = {};
+    }
+
+    function escapeHtml(value){
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[char]));
+    }
+
+    function formatSize(bytes=0){
+      if(bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    function requiredSlots(){
+      return mediaSlots.filter(slot => slot.required);
+    }
+
+    function completedRequiredSlots(){
+      return requiredSlots().filter(slot => state.media[slot.key]);
+    }
+
+    function episodeSlots(index){
+      return mediaSlots.filter(slot => slot.group === "episode" && slot.episode === index);
+    }
+
+    function episodeReady(index){
+      const episode = state.config.episodes[index];
+      const hasText = episode.title.trim() && episode.desc.trim() && episode.question.trim();
+      const hasMedia = episodeSlots(index).every(slot => state.media[slot.key]);
+      return Boolean(hasText && hasMedia);
+    }
+
+    function sectionDone(id){
+      if(id === "overview") return true;
+      if(id === "basics") return Boolean(state.config.viewerName.trim() && state.config.heroTitle.trim());
+      if(id === "episodes") return state.config.episodes.every((_, index) => episodeReady(index));
+      if(id === "finale") return Boolean(state.config.finaleTitle.trim() && state.config.finaleSubtitle.trim());
+      if(id === "sound") return true;
+      if(id === "review") return false;
+      return false;
+    }
+
+    function missingItems(){
+      const items = [];
+      if(!state.config.viewerName.trim()) items.push("Viewer name");
+      if(!state.config.heroTitle.trim()) items.push("Opening title");
+      state.config.episodes.forEach((episode, index) => {
+        if(!episode.title.trim()) items.push(`Episode ${index+1} title`);
+        if(!episode.desc.trim()) items.push(`Episode ${index+1} description`);
+        if(!episode.question.trim()) items.push(`Episode ${index+1} question`);
+        episodeSlots(index).forEach(slot => {
+          if(slot.required && !state.media[slot.key]) items.push(slot.title);
+        });
+      });
+      if(!state.config.finaleTitle.trim()) items.push("Finale title");
+      return items;
+    }
+
+    function render(){
+      app.innerHTML = `
+        <div class="app">
+          <aside class="sidebar">
+            <div class="brand">
+              <div class="mark"></div>
+              <div>
+                <strong>RomCom Builder</strong>
+                <span>Private media template</span>
+              </div>
+            </div>
+            <div class="privacy">
+              Customer photos and videos stay in this browser. The public website stores only template code and safe assets.
+            </div>
+            <div class="steps">
+              ${steps.map((step, index) => `
+                <button class="step ${state.step === step.id ? "active" : ""} ${sectionDone(step.id) ? "done" : ""}" data-step="${step.id}">
+                  <span class="stepIndex">${index + 1}</span>
+                  <span>${step.title}<small>${step.sub}</small></span>
+                  <span class="statusDot"></span>
+                </button>
+              `).join("")}
+            </div>
+          </aside>
+
+          <main class="main">
+            <div class="topbar">
+              <div class="saveState" id="saveState">${escapeHtml(state.saveText)}</div>
+              <div class="actions">
+                <button class="quiet" data-action="preview">Open preview</button>
+                <button class="danger" data-action="reset">Reset builder</button>
+              </div>
+            </div>
+            <section class="workspace">
+              ${renderStep()}
+            </section>
+          </main>
+        </div>
+      `;
+    }
+
+    function renderStep(){
+      if(state.step === "overview") return renderOverview();
+      if(state.step === "basics") return renderBasics();
+      if(state.step === "episodes") return renderEpisodes();
+      if(state.step === "finale") return renderFinale();
+      if(state.step === "sound") return renderSound();
+      return renderReview();
+    }
+
+    function page(title, lede, body, footer){
+      return `
+        <div class="pageHead">
+          <div>
+            <h1>${title}</h1>
+            <p class="lede">${lede}</p>
+          </div>
+        </div>
+        <div class="content">${body}</div>
+        <div class="footerNav">${footer}</div>
+      `;
+    }
+
+    function renderOverview(){
+      const readyEpisodes = state.config.episodes.filter((_, index) => episodeReady(index)).length;
+      const mediaReady = completedRequiredSlots().length;
+      return page(
+        "Build the private premiere",
+        "Set the story, add each episode, attach private media, then launch a polished preview. The user never has to understand file names.",
+        `
+          <div class="grid3">
+            <div class="tileCard metric"><span>Episodes ready</span><strong>${readyEpisodes}/6</strong></div>
+            <div class="tileCard metric"><span>Required media</span><strong>${mediaReady}/${requiredSlots().length}</strong></div>
+            <div class="tileCard metric"><span>Finale text</span><strong>${sectionDone("finale") ? "Ready" : "Draft"}</strong></div>
+          </div>
+          <div class="grid2" style="margin-top:16px;">
+            <div class="tileCard stack">
+              <h2>Customer flow</h2>
+              <p class="muted">The customer edits readable labels and uploads media into clear slots: cover image, episode video, credits image, and optional sound.</p>
+              <button class="primary" data-step="basics">Start setup</button>
+            </div>
+            <div class="tileCard stack">
+              <h2>Delivery model</h2>
+              <p class="muted">Deploy this as a website. Customers open the link, customize locally, and launch the preview. Their files never enter your GitHub repo.</p>
+              <button class="quiet" data-step="review">Review readiness</button>
+            </div>
+          </div>
+        `,
+        `<span class="muted">Start from Basics, then move through episodes one by one.</span><button class="primary" data-step="basics">Continue</button>`
+      );
+    }
+
+    function renderBasics(){
+      return page(
+        "Basics",
+        "Set the viewer name and opening screen. These are the first details the customer sees in the final experience.",
+        `
+          <div class="grid2">
+            ${field("Viewer name", "viewerName", state.config.viewerName, "input", "Shown on the viewer confirmation screen.")}
+            ${field("Opening title", "heroTitle", state.config.heroTitle, "input", "The main title before the premiere starts.")}
+            ${field("Opening subtitle", "heroSubtitle", state.config.heroSubtitle, "textarea", "Short supporting text under the title.", "wide")}
+            ${field("Viewer prompt", "viewerPrompt", state.config.viewerPrompt, "input", "Question shown above the viewer name.")}
+            ${field("Viewer button", "viewerConfirm", state.config.viewerConfirm, "input", "Button text that starts the episode section.")}
+            ${field("Home greeting", "homeGreeting", state.config.homeGreeting, "input", "Example: Hello, Hi, Welcome.")}
+            ${field("Home subtitle", "homeSubtitle", state.config.homeSubtitle, "input", "One line under the greeting on the episode home screen.")}
+            ${field("Opening scene lines", "cinematicLines", state.config.cinematicLines.join("\\n"), "textarea", "One line per cinematic transition.", "wide")}
+          </div>
+        `,
+        `<button class="quiet" data-step="overview">Back</button><button class="primary" data-step="episodes">Edit episodes</button>`
+      );
+    }
+
+    function field(labelText, key, value, kind="input", help="", extraClass=""){
+      const isTextArea = kind === "textarea";
+      return `
+        <div class="field ${extraClass}">
+          <label for="${key}">${labelText}</label>
+          ${isTextArea
+            ? `<textarea id="${key}" rows="${key === "cinematicLines" ? 5 : 3}" data-config="${key}">${escapeHtml(value)}</textarea>`
+            : `<input id="${key}" data-config="${key}" value="${escapeHtml(value)}">`
+          }
+          ${help ? `<small>${help}</small>` : ""}
+        </div>
+      `;
+    }
+
+    function renderEpisodes(){
+      const episode = state.config.episodes[state.episode];
+      return page(
+        "Episodes",
+        "Edit one episode at a time. Each episode needs a cover image, a video, and a short question.",
+        `
+          <div class="episodeLayout">
+            <div class="episodeList">
+              ${state.config.episodes.map((item, index) => renderEpisodeButton(item, index)).join("")}
+            </div>
+            <div class="tileCard">
+              <div class="pageHead" style="padding:0 0 16px 0; margin-bottom:16px;">
+                <div>
+                  <h2>Episode ${state.episode + 1}</h2>
+                  <p class="lede">The customer fills this screen, checks the previews, then moves to the next episode.</p>
+                </div>
+                <span class="badge ${episodeReady(state.episode) ? "ready" : ""}">${episodeReady(state.episode) ? "Ready" : "Needs media"}</span>
+              </div>
+
+              <div class="grid2">
+                ${episodeField("Title", "title", episode.title)}
+                ${episodeField("Tag", "tag", episode.tag)}
+                ${episodeField("Description", "desc", episode.desc, "textarea", "wide")}
+                ${episodeField("Question", "question", episode.question, "textarea", "wide")}
+              </div>
+
+              <div class="mediaGrid">
+                ${episodeSlots(state.episode).map(renderDropzone).join("")}
+              </div>
+
+              ${renderEpisodeReference(episode)}
+            </div>
+          </div>
+        `,
+        `
+          <button class="quiet" data-action="prevEpisode" ${state.episode === 0 ? "disabled" : ""}>Previous episode</button>
+          <div>
+            <button class="quiet" data-action="nextEpisode" ${state.episode === 5 ? "disabled" : ""}>Next episode</button>
+            <button class="primary" data-step="finale">Continue to finale</button>
+          </div>
+        `
+      );
+    }
+
+    function renderEpisodeReference(episode){
+      return `
+        <div class="referenceShot">
+          <h3>Reference preview</h3>
+          <p class="muted" style="margin-top:5px;">Cover image becomes the episode poster. Video plays after the poster is opened.</p>
+          <div class="referenceCanvas">
+            <div class="referencePoster">
+              <span class="badge">Cover image</span>
+              <strong style="margin-top:8px;">${escapeHtml(episode.title || "Episode title")}</strong>
+              <span class="muted">${escapeHtml(episode.desc || "Episode description")}</span>
+            </div>
+            <div class="referencePlayer">Episode video plays here</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEpisodeButton(episode, index){
+      const cover = state.media[`tile${index+1}.jpg`];
+      return `
+        <button class="episodeItem ${state.episode === index ? "active" : ""}" data-episode="${index}">
+          <span class="thumb">${cover ? `<img src="${cover.url}" alt="">` : index + 1}</span>
+          <span>
+            <strong>${escapeHtml(episode.title || `Episode ${index+1}`)}</strong>
+            <span>${escapeHtml(episode.tag || "Untitled")}</span>
+          </span>
+          <span class="badge ${episodeReady(index) ? "ready" : ""}">${episodeReady(index) ? "Ready" : "Todo"}</span>
+        </button>
+      `;
+    }
+
+    function episodeField(labelText, key, value, kind="input", extraClass=""){
+      return `
+        <div class="field ${extraClass}">
+          <label>${labelText}</label>
+          ${kind === "textarea"
+            ? `<textarea rows="3" data-episode-field="${key}">${escapeHtml(value)}</textarea>`
+            : `<input data-episode-field="${key}" value="${escapeHtml(value)}">`
+          }
+        </div>
+      `;
+    }
+
+    function renderFinale(){
+      const creditSlots = mediaSlots.filter(slot => slot.group === "credits");
+      return page(
+        "Finale",
+        "Customize the last question, closing text, and optional memory images for the credits montage.",
+        `
+          <div class="grid2">
+            ${field("Finale title", "finaleTitle", state.config.finaleTitle, "input", "", "wide")}
+            ${field("Finale subtitle", "finaleSubtitle", state.config.finaleSubtitle, "textarea", "", "wide")}
+            ${field("Credits title", "creditsTitle", state.config.creditsTitle)}
+            ${field("Credits subtitle", "creditsSubtitle", state.config.creditsSubtitle)}
+            ${field("End title", "endTitle", state.config.endTitle)}
+            ${field("End subtitle", "endSubtitle", state.config.endSubtitle)}
+          </div>
+          <h2 style="margin:8px 0 14px;">Credits memories</h2>
+          <div class="grid3">
+            ${creditSlots.map(renderDropzone).join("")}
+          </div>
+        `,
+        `<button class="quiet" data-step="episodes">Back</button><button class="primary" data-step="sound">Optional sound</button>`
+      );
+    }
+
+    function renderSound(){
+      const soundSlots = mediaSlots.filter(slot => slot.group === "sound");
+      return page(
+        "Sound and intro",
+        "The template already includes the intro and UI sounds. The customer only chooses background music if they want a personal song.",
+        `
+          <div class="grid2">
+            <div class="tileCard stack">
+              <h2>Included with the template</h2>
+              <p class="muted">These assets ship with the product, so the customer does not need to upload them.</p>
+              <div class="stack">
+                ${includedTemplateAssets.map(asset => `
+                  <div class="includedAsset">
+                    <span class="thumb">OK</span>
+                    <span>
+                      <strong>${escapeHtml(asset.title)}</strong>
+                      <span class="muted" style="display:block; margin-top:3px;">${escapeHtml(asset.note)}</span>
+                    </span>
+                    <span class="badge ready">Included</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+            <div>
+              ${soundSlots.map(renderDropzone).join("")}
+            </div>
+          </div>
+          <div class="tileCard" style="margin-top:16px;">
+            <h2>Product rule</h2>
+            <p class="lede">Bundle reusable template assets only. Customer-specific photos, videos, and music stay private in the builder.</p>
+          </div>
+        `,
+        `<button class="quiet" data-step="finale">Back</button><button class="primary" data-step="review">Review</button>`
+      );
+    }
+
+    function renderReview(){
+      const missing = missingItems();
+      const checks = [
+        { label:"Basics", detail:"Viewer name and opening screen", ready:sectionDone("basics"), step:"basics" },
+        { label:"Episodes", detail:"Six episodes with text, covers, and videos", ready:sectionDone("episodes"), step:"episodes" },
+        { label:"Finale", detail:"Final question and closing copy", ready:sectionDone("finale"), step:"finale" },
+        { label:"Optional sound", detail:"Music, effects, and intro clip", ready:true, step:"sound" }
+      ];
+
+      return page(
+        "Review and launch",
+        "Check readiness, then open the final experience. Launching still keeps media local in this browser.",
+        `
+          <div class="grid2">
+            <div class="tileCard">
+              <h2>Checklist</h2>
+              <div class="checkList">
+                ${checks.map(item => `
+                  <button class="checkItem ${item.ready ? "ready" : ""}" data-step="${item.step}">
+                    <span class="checkIcon">${item.ready ? "OK" : "!"}</span>
+                    <span><strong>${item.label}</strong><br><span class="muted">${item.detail}</span></span>
+                    <span class="badge ${item.ready ? "ready" : ""}">${item.ready ? "Ready" : "Open"}</span>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+            <div class="tileCard">
+              <h2>${missing.length ? "Still missing" : "Ready to preview"}</h2>
+              <div class="checkList">
+                ${missing.length
+                  ? missing.slice(0, 12).map(item => `<div class="checkItem"><span class="checkIcon">!</span><span>${escapeHtml(item)}</span><span></span></div>`).join("")
+                  : `<div class="checkItem ready"><span class="checkIcon">OK</span><span>All required setup is complete.</span><span></span></div>`
+                }
+              </div>
+              ${missing.length > 12 ? `<p class="lede" style="margin-top:12px;">And ${missing.length - 12} more item(s).</p>` : ""}
+            </div>
+          </div>
+        `,
+        `<button class="quiet" data-step="sound">Back</button><button class="primary" data-action="launch">Launch experience</button>`
+      );
+    }
+
+    function renderDropzone(slot){
+      const record = state.media[slot.key];
+      const inputId = `file-${slot.key.replace(/[^a-z0-9]/gi, "-")}`;
+      const preview = record ? renderPreview(slot, record) : `<div class="preview">No file selected</div>`;
+      return `
+        <div class="dropzone ${record ? "ready" : ""}">
+          ${preview}
+          <div class="dropMeta">
+            <strong>${escapeHtml(slot.title)}</strong>
+            ${record ? `<span>${escapeHtml(record.name)} - ${formatSize(record.size)}</span>` : ""}
+            <div class="whyNote">Why: ${escapeHtml(slot.help)}</div>
+          </div>
+          <div class="dropActions">
+            <label class="fileLabel" for="${inputId}">${record ? "Replace" : "Choose file"}</label>
+            ${record ? `<button class="quiet" data-remove-media="${slot.key}">Remove</button>` : ""}
+          </div>
+          <input class="hiddenInput" id="${inputId}" data-media="${slot.key}" type="file" accept="${slot.type}/*">
+        </div>
+      `;
+    }
+
+    function renderPreview(slot, record){
+      if(slot.type === "image") return `<div class="preview"><img src="${record.url}" alt=""></div>`;
+      if(slot.type === "video") return `<div class="preview"><video src="${record.url}" muted controls></video></div>`;
+      return `<div class="preview"><audio src="${record.url}" controls></audio></div>`;
+    }
+
+    function nextStep(){
+      const index = steps.findIndex(step => step.id === state.step);
+      state.step = steps[Math.min(steps.length - 1, index + 1)].id;
+      render();
+    }
+
+    document.addEventListener("input", event => {
+      const configKey = event.target.dataset.config;
+      const episodeKey = event.target.dataset.episodeField;
+
+      if(configKey){
+        state.config[configKey] = configKey === "cinematicLines"
+          ? event.target.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+          : event.target.value;
+        saveConfig();
+      }
+
+      if(episodeKey){
+        state.config.episodes[state.episode][episodeKey] = event.target.value;
+        saveConfig();
+      }
+    });
+
+    document.addEventListener("change", async event => {
+      const mediaKey = event.target.dataset.media;
+      if(!mediaKey) return;
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+      await saveMedia(mediaKey, file);
+      render();
+    });
+
+    document.addEventListener("click", async event => {
+      const stepButton = event.target.closest("[data-step]");
+      const episodeButton = event.target.closest("[data-episode]");
+      const removeButton = event.target.closest("[data-remove-media]");
+      const actionButton = event.target.closest("[data-action]");
+
+      if(stepButton){
+        state.step = stepButton.dataset.step;
+        render();
+        return;
+      }
+
+      if(episodeButton){
+        state.episode = Number(episodeButton.dataset.episode);
+        render();
+        return;
+      }
+
+      if(removeButton){
+        await removeMedia(removeButton.dataset.removeMedia);
+        render();
+        return;
+      }
+
+      if(!actionButton) return;
+      const action = actionButton.dataset.action;
+
+      if(action === "prevEpisode"){
+        state.episode = Math.max(0, state.episode - 1);
+        render();
+      }
+
+      if(action === "nextEpisode"){
+        state.episode = Math.min(5, state.episode + 1);
+        render();
+      }
+
+      if(action === "preview" || action === "launch"){
+        saveConfig();
+        window.location.href = "play.html";
+      }
+
+      if(action === "reset"){
+        if(!confirm("Reset all text and remove locally saved media for this template?")) return;
+        localStorage.removeItem(TEMPLATE_STORAGE_KEY);
+        await clearMedia();
+        state.config = clone(defaultConfig);
+        state.step = "overview";
+        state.episode = 0;
+        setSaved("Reset complete");
+        render();
+      }
+    });
+
+    async function init(){
+      await loadMedia();
+      saveConfig();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>

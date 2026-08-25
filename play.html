@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RomCom Premiere Template</title>
+
+  <style>
+    :root{
+      --text:#f5f5f7;
+      --muted: rgba(245,245,247,.78);
+      --muted2: rgba(245,245,247,.62);
+      --red:#e50914;
+      --pink:#ff4da6;
+      --rose:#ff2d87;
+      --border: rgba(255,255,255,.12);
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+    }
+
+    html, body { height:100%; }
+    body{
+      margin:0;
+      overflow:hidden;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(900px 600px at 20% 20%, rgba(255,77,166,.12), transparent 65%),
+        radial-gradient(900px 650px at 80% 25%, rgba(255,45,135,.10), transparent 70%),
+        radial-gradient(900px 650px at 50% 90%, rgba(255,210,220,.08), transparent 70%),
+        linear-gradient(180deg, #120914, #0b0b12);
+    }
+
+    .grain{
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+      opacity: .07;
+      pointer-events:none;
+      z-index:1;
+    }
+
+    #stage{
+      position: relative;
+      z-index: 2;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 32px;
+      box-sizing: border-box;
+    }
+
+    .card{
+      width: min(1180px, 94vw);
+      height: min(690px, 86vh);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(0,0,0,.32), rgba(0,0,0,.48));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position: relative;
+      backdrop-filter: blur(10px);
+      display:flex;
+      flex-direction:column;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(900px 700px at 50% 30%, rgba(229,9,20,.10), transparent 62%);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .topbar{
+      position: relative;
+      z-index: 2;
+      height: 60px;
+      padding: 14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      box-sizing: border-box;
+      flex: 0 0 auto;
+      background: rgba(0,0,0,.22);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:900;
+      letter-spacing:.35px;
+      min-width:0;
+    }
+
+    .nMark{
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      background: var(--red);
+      box-shadow: 0 0 18px rgba(229,9,20,.45);
+      position: relative;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .nMark::after{
+      content:"";
+      position:absolute;
+      inset:-25%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.30), transparent);
+      transform: rotate(35deg) translateX(-60%);
+      animation: shine 2.6s ease-in-out infinite;
+      opacity:.75;
+    }
+    @keyframes shine{
+      0% { transform: rotate(35deg) translateX(-70%); }
+      100% { transform: rotate(35deg) translateX(70%); }
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+      color: rgba(245,245,247,.86);
+      font-size: 12px;
+      white-space: nowrap;
+      flex:0 0 auto;
+    }
+
+    .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: var(--pink);
+      box-shadow: 0 0 14px rgba(255,77,166,.55);
+    }
+
+    .meta{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color: var(--muted2);
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+
+    .content{
+      position: relative;
+      z-index: 2;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 20px 20px 18px;
+      box-sizing: border-box;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .center{
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-width: none;
+      text-align:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .hint{
+      position:absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      color: rgba(245,245,247,.55);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      opacity:.95;
+      user-select:none;
+      z-index:5;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(245,245,247,.70);
+    }
+
+    .title{
+      margin: 0 0 12px 0;
+      font-weight: 900;
+      letter-spacing: -0.6px;
+      font-size: clamp(34px, 4.2vw, 60px);
+      line-height: 1.02;
+    }
+
+    .subtitle{
+      margin: 0 0 18px 0;
+      font-size: clamp(15px, 1.7vw, 20px);
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .small{
+      margin-top: 14px;
+      font-size: 13px;
+      color: rgba(245,245,247,.58);
+    }
+
+    .accent{
+      color: #fff;
+      text-shadow: 0 0 18px rgba(255,77,166,.18);
+    }
+
+    .row{
+      display:flex;
+      gap: 12px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      letter-spacing:.2px;
+      font-size: 15px;
+      transition: transform .12s ease, filter .12s ease;
+      color: var(--text);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    button:hover{ transform: translateY(-1px); filter: brightness(1.08); }
+    button:active{ transform: translateY(0) scale(.99); }
+
+    input, textarea{
+      box-sizing:border-box;
+      appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:8px;
+      background:rgba(0,0,0,.32);
+      color:var(--text);
+      padding:10px 11px;
+      font:inherit;
+      resize:vertical;
+      outline:none;
+    }
+    input:focus, textarea:focus{
+      border-color:rgba(255,77,166,.72);
+      box-shadow:0 0 0 3px rgba(255,77,166,.14);
+    }
+
+    .primary{
+      background: linear-gradient(135deg, var(--red), #ff2a35);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 10px 30px rgba(229,9,20,.18);
+    }
+
+    .rom{
+      background: linear-gradient(135deg, rgba(255,77,166,.95), rgba(255,45,135,.85));
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 12px 34px rgba(255,45,135,.16);
+    }
+
+    /* ====== Floating hearts ====== */
+    #floatLayer{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index: 3000;
+      display:none;
+    }
+    .float{
+      position: fixed;
+      top: -30px;
+      left: 0;
+      will-change: transform, opacity;
+      opacity:0;
+      transition: transform 2.2s linear, opacity 2.2s linear;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.22));
+    }
+
+    /* NO hover text */
+    .floatingLine{
+      position: fixed;
+      z-index: 3500;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+      pointer-events:none;
+      font-weight: 900;
+      letter-spacing: .2px;
+      opacity: 0;
+      transition: transform 1.5s ease, opacity 1.5s ease;
+      user-select:none;
+      background: rgba(0,0,0,.25);
+    }
+
+    /* ====== Intro overlay ====== */
+    #netflixIntroOverlay{
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 4000;
+    }
+    #netflixIntroVideo{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+      background:#000;
+    }
+
+    /* ====== HOME ====== */
+    .homeWrap{
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      text-align:left;
+    }
+
+    .homeHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 2px 2px 0;
+      flex: 0 0 auto;
+    }
+
+    .homeHeaderLeft{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .homeTitle{
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.2px;
+      margin: 0;
+    }
+
+    .homeSub{
+      margin:0;
+      font-size: 13px;
+      color: rgba(245,245,247,.65);
+      line-height: 1.3;
+    }
+
+    .rowTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 0 2px;
+      flex: 0 0 auto;
+      margin: 0;
+    }
+    .rowTitle h3{
+      margin:0;
+      font-size: 13px;
+      font-weight: 950;
+      color: rgba(245,245,247,.86);
+      letter-spacing: .2px;
+    }
+    .rowTitle span{
+      font-size: 12px;
+      color: rgba(245,245,247,.55);
+      text-align:right;
+    }
+
+    .tiles{
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 980px){
+      .tiles{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .tile{
+      position:relative;
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 12px 26px rgba(0,0,0,.35);
+      cursor:pointer;
+      min-height: 0;
+      min-width: 0;
+      transform: translateZ(0);
+      transition: transform .14s ease, filter .14s ease, border-color .14s ease;
+    }
+
+    .tile:hover{
+      transform: scale(1.015);
+      filter: brightness(1.06);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .tile img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      background: rgba(0,0,0,.35);
+    }
+
+    .tileOverlay{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.78));
+    }
+
+    .tileMeta{
+      position:absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 0;
+    }
+
+    .tileTag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .2px;
+      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.28);
+      backdrop-filter: blur(8px);
+    }
+
+    .tileName{
+      margin:0;
+      font-size: 13px;
+      font-weight: 950;
+      letter-spacing: .1px;
+      color: rgba(255,255,255,.96);
+      line-height: 1.2;
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tileDesc{
+      margin:0;
+      font-size: 11px;
+      color: rgba(255,255,255,.72);
+      line-height: 1.25;
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .watched{
+      position:absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      font-weight: 950;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.88);
+      backdrop-filter: blur(8px);
+      display:none;
+    }
+    .tile.done .watched{ display:block; }
+
+    /* ====== Episode overlay ====== */
+    #episodeOverlay{
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(900px 700px at 50% 35%, rgba(255,77,166,.14), rgba(0,0,0,.88));
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 3200;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .episodeBox{
+      width: min(1100px, 96vw);
+      height: min(680px, 88vh);
+      border-radius: 22px;
+      overflow:hidden;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 20px 70px rgba(0,0,0,.62);
+      backdrop-filter: blur(10px);
+      display:flex;
+      flex-direction:column;
+    }
+
+    .episodeHeader{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      gap: 12px;
+      flex: 0 0 auto;
+      box-sizing: border-box;
+      background: rgba(0,0,0,.25);
+    }
+
+    .episodeHeaderLeft{
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      min-width:0;
+    }
+    .episodeH{
+      margin:0;
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing: .2px;
+      color: rgba(245,245,247,.88);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .episodeH2{
+      margin:0;
+      font-size: 12px;
+      color: rgba(245,245,247,.58);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .episodeClose{
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 950;
+      color: var(--text);
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+
+    .episodeBody{
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 14px;
+      box-sizing: border-box;
+    }
+    @media (max-width: 980px){
+      .episodeBody{ grid-template-columns: 1fr; }
+    }
+
+    .episodeLeft{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.35);
+      overflow:hidden;
+      position:relative;
+      min-height: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* keep videos "good" setup */
+    .epVideo{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+      background:#000;
+    }
+
+    .episodeRight{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      min-height: 0;
+      box-sizing: border-box;
+    }
+
+    .qBlock{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      padding: 14px;
+    }
+
+    /* bigger question fonts */
+    .qTitle{
+      margin:0 0 10px 0;
+      font-weight: 950;
+      letter-spacing: .1px;
+      font-size: 16px;
+      color: rgba(245,245,247,.92);
+    }
+    .qText{
+      margin:0 0 12px 0;
+      color: rgba(245,245,247,.80);
+      font-size: 18px;
+      line-height: 1.45;
+    }
+    #qYes, #qNo{
+      font-size: 17px;
+      padding: 12px 18px;
+    }
+
+    /* ====== Finale overlay ====== */
+    #finaleOverlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 3300;
+      padding: 0;
+      box-sizing: border-box;
+
+      /* netflix theme background for finale */
+      background:
+        radial-gradient(900px 700px at 50% 28%, rgba(229,9,20,.22), transparent 60%),
+        radial-gradient(900px 650px at 25% 78%, rgba(255,77,166,.14), transparent 68%),
+        linear-gradient(180deg, #000, #07070b);
+    }
+
+    .finaleBox{
+      width: min(980px, 92vw);
+      border-radius: 24px;
+      overflow:hidden;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 18px 70px rgba(0,0,0,.70);
+      backdrop-filter: blur(10px);
+      text-align:center;
+      padding: 40px 28px 36px;
+      position: relative;
+    }
+
+    /* ====== Finale transition overlay ====== */
+    #finaleIntro{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 3350;
+      background:
+        radial-gradient(900px 700px at 50% 30%, rgba(229,9,20,.22), rgba(0,0,0,.92));
+      text-align:center;
+      padding: 28px;
+      box-sizing:border-box;
+    }
+
+    /* ====== Credits montage FULL SCREEN PHOTOS ====== */
+    #creditsOverlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      z-index: 3600;
+      background: #000;
+    }
+
+    .creditsImg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      opacity:0;
+      transform: scale(1.02);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .creditsImg.show{
+      opacity:1;
+      transform: scale(1.00);
+    }
+
+    .creditsFade{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
+      pointer-events:none;
+    }
+
+    .creditsText{
+      position:absolute;
+      left: 50%;
+      bottom: 70px;
+      transform: translateX(-50%);
+      width: min(980px, 92vw);
+      text-align:center;
+      z-index: 5;
+    }
+
+    .endCard{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 28px;
+      box-sizing: border-box;
+      background:
+        radial-gradient(900px 700px at 50% 35%, rgba(255,77,166,.14), rgba(0,0,0,.88));
+      z-index: 10;
+    }
+
+    /* ====== Static name display ====== */
+    .nameCard{
+      width: min(520px, 92vw);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.28);
+      padding: 18px 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+    .nameBig{
+      font-weight: 950;
+      letter-spacing: -.4px;
+      font-size: clamp(28px, 3.2vw, 44px);
+      margin: 6px 0 0 0;
+      color: rgba(245,245,247,.98);
+      text-shadow: 0 16px 40px rgba(0,0,0,.55);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grain"></div>
+
+  <div id="stage">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand">
+          <span class="nMark" aria-hidden="true"></span>
+          <span>RomCom Premiere</span>
+          <span class="pill"><span class="dot"></span><span>Personalized media template</span></span>
+        </div>
+        <div class="meta">
+          <span class="pill" id="progressText">Act 1 of 6</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="center" id="center"></div>
+
+        <div class="hint" id="hint">
+          <span class="kbd">F11</span><span>full screen</span>
+          <span style="opacity:.6;">•</span>
+          <span class="kbd">Esc</span><span>close</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="floatLayer"></div>
+
+  <!-- Audio: public version loads private files from the browser upload screen. -->
+  <audio id="bgm" preload="auto" loop></audio>
+  <audio id="sparkle" preload="auto"></audio>
+  <audio id="celebrationAudio" preload="auto"></audio>
+
+  <!-- Intro overlay -->
+  <div id="netflixIntroOverlay">
+    <video id="netflixIntroVideo" preload="auto"></video>
+  </div>
+
+  <!-- Episode overlay -->
+  <div id="episodeOverlay">
+    <div class="episodeBox" id="episodeBox">
+      <div class="episodeHeader">
+        <div class="episodeHeaderLeft">
+          <p class="episodeH" id="epHeaderTitle">Episode</p>
+          <p class="episodeH2" id="epHeaderSub">A little memory… just for us.</p>
+        </div>
+        <button class="episodeClose" id="closeEpisode">Close</button>
+      </div>
+
+      <div class="episodeBody">
+        <div class="episodeLeft">
+          <video class="epVideo" id="tileVideo" controls></video>
+        </div>
+
+        <div class="episodeRight">
+          <div class="qBlock" id="qBlock">
+            <p class="qTitle">Question</p>
+            <p class="qText" id="qText">…</p>
+            <div class="row">
+              <button class="rom" id="qYes">Yes 💖</button>
+              <button id="qNo">No 💔</button>
+            </div>
+          </div>
+
+          <div class="qBlock" id="doneBlock" style="display:none;">
+            <p class="qTitle">Episode complete ✅</p>
+            <p class="qText" id="doneText">Ready for the next one?</p>
+            <div class="row">
+              <button class="primary" id="nextBtn">Next episode ▶</button>
+              <button id="homeBtn">Back to home</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finale transition overlay -->
+  <div id="finaleIntro">
+    <div>
+      <h1 class="title" style="margin-bottom:10px;"><span style="color:var(--red);">Finale</span> 🎬</h1>
+      <p class="subtitle" style="margin-bottom:0;">
+        One last scene…<br/>
+        just you and me.
+      </p>
+    </div>
+  </div>
+
+  <!-- Finale overlay -->
+  <div id="finaleOverlay">
+    <div class="finaleBox" id="finaleBox">
+      <h1 class="title" id="finaleTitle">Will you be my Valentine? 💍❤️</h1>
+      <p class="subtitle" id="finaleSub">
+        This premiere has only one ending…<br/>
+        and it’s <span class="accent">us</span>. Always.
+      </p>
+
+      <div class="row">
+        <button class="rom" id="yesFinale">Yes ❤️</button>
+        <button id="noFinale">No 💔</button>
+      </div>
+
+      <div class="small" id="finaleMeta"></div>
+    </div>
+  </div>
+
+  <!-- Credits montage FULL SCREEN -->
+  <div id="creditsOverlay">
+    <img id="creditsImgA" class="creditsImg" src="" alt="Memory A">
+    <img id="creditsImgB" class="creditsImg" src="" alt="Memory B">
+    <div class="creditsFade"></div>
+
+    <div class="creditsText" id="creditsText">
+      <h1 class="title" style="font-size:clamp(26px,3vw,44px); margin:0 0 6px 0;">Favourite Scenes</h1>
+      <p class="subtitle" style="margin:0; opacity:.9;">Our little universe 💖</p>
+    </div>
+
+    <div class="endCard" id="endCard">
+      <div>
+        <h1 class="title" style="margin-bottom:10px;">
+          <span style="color:var(--rose);">She said YES.</span> 😭❤️
+        </h1>
+        <p class="subtitle" style="margin-bottom:0;">
+          The end… or the beginning? 💖
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Media is provided by the builder and loaded locally from IndexedDB.
+
+    const center = document.getElementById("center");
+    const progressText = document.getElementById("progressText");
+    const hint = document.getElementById("hint");
+
+    const bgm = document.getElementById("bgm");
+    const sparkle = document.getElementById("sparkle");
+    const celebrationAudio = document.getElementById("celebrationAudio");
+
+    const floatLayer = document.getElementById("floatLayer");
+
+    const netflixIntroOverlay = document.getElementById("netflixIntroOverlay");
+    const netflixIntroVideo = document.getElementById("netflixIntroVideo");
+
+    const episodeOverlay = document.getElementById("episodeOverlay");
+    const closeEpisode = document.getElementById("closeEpisode");
+    const epHeaderTitle = document.getElementById("epHeaderTitle");
+    const epHeaderSub = document.getElementById("epHeaderSub");
+    const tileVideo = document.getElementById("tileVideo");
+
+    const qBlock = document.getElementById("qBlock");
+    const qText = document.getElementById("qText");
+    const qYes = document.getElementById("qYes");
+    const qNo = document.getElementById("qNo");
+
+    const doneBlock = document.getElementById("doneBlock");
+    const doneText = document.getElementById("doneText");
+    const nextBtn = document.getElementById("nextBtn");
+    const homeBtn = document.getElementById("homeBtn");
+
+    const finaleIntro = document.getElementById("finaleIntro");
+    const finaleOverlay = document.getElementById("finaleOverlay");
+    const finaleTitle = document.getElementById("finaleTitle");
+    const finaleSub = document.getElementById("finaleSub");
+    const finaleMeta = document.getElementById("finaleMeta");
+    const yesFinale = document.getElementById("yesFinale");
+    const noFinale = document.getElementById("noFinale");
+    const finaleBox = document.getElementById("finaleBox");
+
+    const creditsOverlay = document.getElementById("creditsOverlay");
+    const imgA = document.getElementById("creditsImgA");
+    const imgB = document.getElementById("creditsImgB");
+    const creditsText = document.getElementById("creditsText");
+    const endCard = document.getElementById("endCard");
+
+    const state = {
+      name: "Viewer",
+      doneTiles: [false,false,false,false,false,false],
+      currentIndex: null,
+      startedAt: Date.now(),
+      creditsRunning: false,
+      showingA: true
+    };
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    const templateConfig = {
+      viewerName: "Viewer",
+      heroTitle: "Tonight's Valentine Premiere",
+      heroSubtitle: "A personalized romcom made for one special viewer.",
+      viewerPrompt: "Ready for your private screening?",
+      viewerConfirm: "Start the episodes",
+      homeGreeting: "Hello",
+      homeSubtitle: "Six custom episodes. Start from Episode 1.",
+      episodesTitle: "Personalized Episodes",
+      episodesMeta: "6 tiles - 1 question - 1 video each",
+      finaleTitle: "Will you be my Valentine?",
+      finaleSubtitle: "This premiere has only one ending: a story made just for you.",
+      creditsTitle: "Favorite Scenes",
+      creditsSubtitle: "A little universe of memories",
+      endTitle: "The beginning",
+      endSubtitle: "The end credits are only the start.",
+      cinematicLines: [
+        "Every story has a beginning.",
+        "Some moments become memories.",
+        "Some memories become a whole little universe.",
+        "And now... it leads to this."
+      ]
+    };
+
+    const mediaUrls = {};
+    const MEDIA_SLOTS = [
+      { key: "tile1.jpg", label: "Episode 1 cover", type: "image" },
+      { key: "tile2.jpg", label: "Episode 2 cover", type: "image" },
+      { key: "tile3.jpg", label: "Episode 3 cover", type: "image" },
+      { key: "tile4.jpg", label: "Episode 4 cover", type: "image" },
+      { key: "tile5.jpg", label: "Episode 5 cover", type: "image" },
+      { key: "tile6.jpg", label: "Episode 6 cover", type: "image" },
+      { key: "ep1.mp4", label: "Episode 1 video", type: "video" },
+      { key: "ep2.mp4", label: "Episode 2 video", type: "video" },
+      { key: "ep3.mp4", label: "Episode 3 video", type: "video" },
+      { key: "ep4.mp4", label: "Episode 4 video", type: "video" },
+      { key: "ep5.mp4", label: "Episode 5 video", type: "video" },
+      { key: "ep6.mp4", label: "Episode 6 video", type: "video" },
+      { key: "M1.jpg", label: "Credits image 1", type: "image" },
+      { key: "M2.jpg", label: "Credits image 2", type: "image" },
+      { key: "M3.jpg", label: "Credits image 3", type: "image" },
+      { key: "M4.jpg", label: "Credits image 4", type: "image" },
+      { key: "M5.jpg", label: "Credits image 5", type: "image" },
+      { key: "bgm.mp3", label: "Background music", type: "audio", optional: true },
+      { key: "sparkle.mp3", label: "Sparkle sound", type: "audio", optional: true },
+      { key: "celebration.mp3", label: "Celebration sound", type: "audio", optional: true },
+      { key: "netflix_intro.mp4", label: "Intro video", type: "video", optional: true }
+    ];
+    const mediaSlotByName = new Map(MEDIA_SLOTS.map(slot => [slot.key.toLowerCase(), slot]));
+    const MEDIA_DB_NAME = "romcom-template-media-v1";
+    const MEDIA_DB_STORE = "media";
+    const DEFAULT_TEMPLATE_MEDIA = {
+      "sparkle.mp3": "assets/template/sparkle.mp3",
+      "celebration.mp3": "assets/template/celebration.mp3",
+      "netflix_intro.mp4": "assets/template/netflix_intro.mp4"
+    };
+
+    function mediaUrl(name){
+      return mediaUrls[name.toLowerCase()] || "";
+    }
+
+    function hasMedia(name){
+      return Boolean(mediaUrl(name));
+    }
+
+    function mediaLabel(name){
+      const slot = mediaSlotByName.get(name.toLowerCase());
+      return slot ? slot.label : name;
+    }
+
+    function makePlaceholder(label){
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#171717"/>
+              <stop offset="1" stop-color="#2b0d18"/>
+            </linearGradient>
+          </defs>
+          <rect width="900" height="520" fill="url(#g)"/>
+          <rect x="34" y="34" width="832" height="452" rx="24" fill="none" stroke="rgba(255,255,255,.22)" stroke-dasharray="18 14" stroke-width="4"/>
+          <text x="450" y="236" fill="#f5f5f7" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" font-weight="700">Media not uploaded</text>
+          <text x="450" y="288" fill="rgba(245,245,247,.78)" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">${label}</text>
+        </svg>
+      `;
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+
+    function setMediaUrl(key, url){
+      const normalized = key.toLowerCase();
+      if(mediaUrls[normalized] && mediaUrls[normalized].startsWith("blob:")){
+        URL.revokeObjectURL(mediaUrls[normalized]);
+      }
+      mediaUrls[normalized] = url;
+
+      if(normalized === "bgm.mp3") bgm.src = mediaUrls[normalized];
+      if(normalized === "sparkle.mp3") sparkle.src = mediaUrls[normalized];
+      if(normalized === "celebration.mp3") celebrationAudio.src = mediaUrls[normalized];
+      if(normalized === "netflix_intro.mp4") netflixIntroVideo.src = mediaUrls[normalized];
+    }
+
+    function setMediaFile(key, file){
+      setMediaUrl(key, URL.createObjectURL(file));
+    }
+
+    function openMediaDb(){
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(MEDIA_DB_NAME, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if(!db.objectStoreNames.contains(MEDIA_DB_STORE)){
+            db.createObjectStore(MEDIA_DB_STORE, { keyPath:"key" });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function loadSavedMediaFiles(){
+      try{
+        const db = await openMediaDb();
+        const records = await new Promise((resolve, reject) => {
+          const tx = db.transaction(MEDIA_DB_STORE, "readonly");
+          const request = tx.objectStore(MEDIA_DB_STORE).getAll();
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+          tx.oncomplete = () => db.close();
+        });
+
+        records.forEach(record => {
+          if(record && record.key && record.file){
+            setMediaUrl(record.key, URL.createObjectURL(record.file));
+          }
+        });
+      }catch(e){}
+    }
+
+    async function saveMediaFile(key, file){
+      try{
+        const db = await openMediaDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(MEDIA_DB_STORE, "readwrite");
+          const request = tx.objectStore(MEDIA_DB_STORE).put({
+            key,
+            file,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            updatedAt: Date.now()
+          });
+          request.onsuccess = () => resolve();
+          request.onerror = () => reject(request.error);
+          tx.oncomplete = () => db.close();
+        });
+      }catch(e){}
+
+      setMediaFile(key, file);
+    }
+
+    function applyDefaultTemplateMedia(){
+      Object.entries(DEFAULT_TEMPLATE_MEDIA).forEach(([key, url]) => {
+        if(!mediaUrl(key)) setMediaUrl(key, url);
+      });
+    }
+
+    function escapeHtml(value){
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function linesHtml(lines){
+      return escapeHtml(lines.join("\n")).replace(/\n/g, "<br/>");
+    }
+
+    function setProgress(act){
+      progressText.textContent = `Act ${act} of 6`;
+    }
+
+    function render(html){
+      center.innerHTML = html;
+    }
+
+    function playSafe(media, vol=1){
+      if(!media || !media.src) return;
+      media.volume = vol;
+      const p = media.play();
+      if(p && p.catch) p.catch(()=>{});
+    }
+
+    // Hearts rain
+    let floatTimer = null;
+    function hearts(durationMs=1200){
+      floatLayer.style.display = "block";
+      const start = Date.now();
+      const emojis = ["💖","💕","💘","✨","🌸","🥹","❤️","💍"];
+
+      floatTimer = setInterval(() => {
+        if(Date.now() - start > durationMs){
+          clearInterval(floatTimer);
+          floatTimer = null;
+          setTimeout(() => { floatLayer.innerHTML=""; floatLayer.style.display="none"; }, 300);
+          return;
+        }
+
+        const e = document.createElement("span");
+        e.className = "float";
+        e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        e.style.left = Math.random() * window.innerWidth + "px";
+        e.style.fontSize = (18 + Math.random()*30) + "px";
+        floatLayer.appendChild(e);
+
+        requestAnimationFrame(() => {
+          e.style.opacity = "1";
+          e.style.transform = `translateY(${window.innerHeight+140}px) rotate(${(Math.random()*200-100)|0}deg)`;
+          e.style.opacity = "0";
+        });
+
+        setTimeout(()=>e.remove(), 2400);
+      }, 55);
+    }
+
+    async function cinematic(lines, pause=2800){
+      hint.style.opacity = "0";
+      for(const line of lines){
+        render(`<div><h1 class="title">${line}</h1><p class="subtitle">&nbsp;</p></div>`);
+        await sleep(pause);
+      }
+      hint.style.opacity = ".95";
+    }
+
+    function playIntroThen(next){
+      if(!hasMedia("netflix_intro.mp4")){
+        next();
+        return;
+      }
+
+      netflixIntroOverlay.style.display = "flex";
+      netflixIntroVideo.currentTime = 0;
+
+      const p = netflixIntroVideo.play();
+      if(p && p.catch) p.catch(()=>{});
+
+      const end = () => {
+        netflixIntroVideo.pause();
+        netflixIntroOverlay.style.display = "none";
+        netflixIntroVideo.onended = null;
+        netflixIntroOverlay.onclick = null;
+        next();
+      };
+
+      netflixIntroVideo.onended = end;
+
+      setTimeout(() => {
+        if(netflixIntroVideo.paused && netflixIntroVideo.currentTime === 0) end();
+      }, 1400);
+
+      netflixIntroOverlay.onclick = end;
+    }
+
+    function nextIncomplete(){
+      for(let i=0;i<state.doneTiles.length;i++){
+        if(!state.doneTiles[i]) return i;
+      }
+      return null;
+    }
+
+    const TILES = [
+      {
+        title: "Episode 1 - First Memory",
+        desc: "A moment that started the story.",
+        tag: "Beginning",
+        cover: "tile1.jpg",
+        video: "ep1.mp4",
+        theme: { a: "rgba(255,77,166,.14)", b: "rgba(0,0,0,.88)" },
+        question: "Do you want to continue this story with me?"
+      },
+      {
+        title: "Episode 2 - A Special Day",
+        desc: "The date that changed the timeline.",
+        tag: "Special",
+        cover: "tile2.jpg",
+        video: "ep2.mp4",
+        theme: { a: "rgba(255,211,168,.10)", b: "rgba(0,0,0,.88)" },
+        question: "Can we keep choosing each other in the ordinary days too?"
+      },
+      {
+        title: "Episode 3 - A Favorite Adventure",
+        desc: "A place, a trip, or a memory worth replaying.",
+        tag: "Adventure",
+        cover: "tile3.jpg",
+        video: "ep3.mp4",
+        theme: { a: "rgba(180,220,255,.10)", b: "rgba(0,0,0,.90)" },
+        question: "Will you keep making new adventures with me?"
+      },
+      {
+        title: "Episode 4 - A Cozy Moment",
+        desc: "The kind of memory that feels like home.",
+        tag: "Comfort",
+        cover: "tile4.jpg",
+        video: "ep4.mp4",
+        theme: { a: "rgba(255,140,180,.10)", b: "rgba(0,0,0,.90)" },
+        question: "Will you let me be your comfort on the difficult days?"
+      },
+      {
+        title: "Episode 5 - Celebration",
+        desc: "A day that deserves its own scene.",
+        tag: "Celebration",
+        cover: "tile5.jpg",
+        video: "ep5.mp4",
+        theme: { a: "rgba(229,9,20,.09)", b: "rgba(0,0,0,.90)" },
+        question: "Will you celebrate the next chapter with me?"
+      },
+      {
+        title: "Episode 6 - Finale Memory",
+        desc: "The scene before the big question.",
+        tag: "Finale",
+        cover: "tile6.jpg",
+        video: "ep6.mp4",
+        theme: { a: "rgba(255,77,166,.12)", b: "rgba(0,0,0,.90)" },
+        question: "Are you ready for the finale?"
+      }
+    ];
+
+    const CREDITS_IMAGES = [
+      "tile2.jpg","tile3.jpg","tile4.jpg","tile5.jpg","tile6.jpg",
+      "M1.jpg","M2.jpg","M3.jpg","M4.jpg","M5.jpg"
+    ];
+
+    const TEMPLATE_STORAGE_KEY = "romcom-template-settings-v1";
+
+    function saveTemplateConfig(){
+      try{
+        localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify({
+          templateConfig,
+          episodes: TILES.map(({ title, desc, tag, question }) => ({ title, desc, tag, question }))
+        }));
+      }catch(e){}
+    }
+
+    function loadTemplateConfig(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || "null");
+        if(!saved) return;
+        if(saved.templateConfig) Object.assign(templateConfig, saved.templateConfig);
+        if(Array.isArray(saved.episodes)){
+          saved.episodes.forEach((episode, idx) => {
+            if(!TILES[idx]) return;
+            ["title","desc","tag","question"].forEach(key => {
+              if(typeof episode[key] === "string") TILES[idx][key] = episode[key];
+            });
+          });
+        }
+      }catch(e){}
+    }
+
+    // fun No lines
+    const noLines = ["WHY?? 💔","pls don’t 😭💔","i’m fragile 🥺💔","catch me if you can 😅💔","too slow ma’am 🐌💔","rejection arc?? 💔"];
+    const noColors = [
+      {text:"#ff4da6", bg:"rgba(255,77,166,.14)"},
+      {text:"#ffd3a8", bg:"rgba(255,211,168,.12)"},
+      {text:"#ff5a5f", bg:"rgba(255,90,95,.12)"},
+      {text:"#f5f5f7", bg:"rgba(255,255,255,.10)"},
+      {text:"#9bdcff", bg:"rgba(155,220,255,.10)"},
+    ];
+    function rand(a,b){ return Math.floor(a + Math.random() * (b-a)); }
+
+    // ✅ spawn text OUTSIDE finaleBox area
+    function spawnLineOutsideFinaleBox(){
+      const msg = noLines[Math.floor(Math.random() * noLines.length)];
+      const c = noColors[Math.floor(Math.random() * noColors.length)];
+
+      const el = document.createElement("div");
+      el.className = "floatingLine";
+      el.textContent = msg;
+      el.style.background = c.bg;
+      el.style.color = c.text;
+      document.body.appendChild(el);
+
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      const margin = 16;
+
+      const boxRect = finaleBox.getBoundingClientRect();
+
+      // pick random spot that is NOT inside finaleBox
+      let left = 0, top = 0, tries = 0;
+      while(tries < 30){
+        left = rand(margin, Math.max(margin, window.innerWidth - w - margin));
+        top  = rand(margin, Math.max(margin, window.innerHeight - h - margin));
+
+        const inside =
+          left < boxRect.right &&
+          left + w > boxRect.left &&
+          top < boxRect.bottom &&
+          top + h > boxRect.top;
+
+        if(!inside) break;
+        tries++;
+      }
+
+      el.style.left = left + "px";
+      el.style.top = top + "px";
+
+      requestAnimationFrame(() => {
+        el.style.opacity = "1";
+        el.style.transform = "translateY(-6px)";
+      });
+
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(-18px)";
+      }, 900);
+
+      setTimeout(() => el.remove(), 1600);
+    }
+
+    function screenStart(){
+      setProgress(1);
+      render(`
+        <div>
+          <h1 class="title">${escapeHtml(templateConfig.heroTitle)}</h1>
+          <p class="subtitle">
+            ${linesHtml([templateConfig.heroSubtitle])}
+          </p>
+          <div class="row">
+            <button class="primary" id="watchNow">▶ Watch Now</button>
+            <button id="mediaSetupBtn">Edit setup</button>
+          </div>
+          <div class="small">Tip: press <span class="kbd">F11</span> for full screen 💘</div>
+        </div>
+      `);
+
+      document.getElementById("watchNow").onclick = async () => {
+        playSafe(sparkle, .35);
+        playSafe(bgm, .22);
+        playIntroThen(async () => {
+          await cinematic(templateConfig.cinematicLines, 2800);
+          screenViewer();
+        });
+      };
+
+      document.getElementById("mediaSetupBtn").onclick = () => {
+        window.location.href = "index.html";
+      };
+    }
+
+    function screenViewer(){
+      setProgress(2);
+      render(`
+        <div>
+          <h1 class="title">Who’s watching? 👀</h1>
+          <p class="subtitle">
+            ${escapeHtml(templateConfig.viewerPrompt)}
+          </p>
+
+          <div class="nameCard" style="margin: 18px auto 0;">
+            <div class="small" style="margin:0; opacity:.85;">Viewer</div>
+            <div class="nameBig">${escapeHtml(templateConfig.viewerName || "Viewer")}</div>
+          </div>
+
+          <div class="row" style="margin-top:18px;">
+            <button class="rom" id="nameNext">${escapeHtml(templateConfig.viewerConfirm || "Continue")}</button>
+          </div>
+
+          <div class="small">Your private media stays on this device.</div>
+        </div>
+      `);
+
+      document.getElementById("nameNext").onclick = () => {
+        state.name = templateConfig.viewerName || "Viewer";
+        playSafe(sparkle, .35);
+        hearts(900);
+        screenHome();
+      };
+    }
+
+    function screenHome(){
+      setProgress(3);
+
+      const nxt = nextIncomplete();
+      const nextLabel = nxt !== null ? `Next up: Episode ${nxt+1}` : `All episodes complete ✅`;
+
+      render(`
+        <div class="homeWrap">
+          <div class="homeHeader">
+            <div class="homeHeaderLeft">
+              <h2 class="homeTitle">Home</h2>
+              <p class="homeSub">
+                ${escapeHtml(templateConfig.homeGreeting)} <span class="accent">${escapeHtml(templateConfig.viewerName || "Viewer")}</span><br/>
+                ${escapeHtml(templateConfig.homeSubtitle)}
+              </p>
+            </div>
+            <div class="pill">
+              <span class="dot"></span>
+              <span>${nextLabel}</span>
+            </div>
+          </div>
+
+          <div class="rowTitle">
+            <h3>${escapeHtml(templateConfig.episodesTitle)}</h3>
+            <span>${escapeHtml(templateConfig.episodesMeta)}</span>
+          </div>
+
+          <div class="tiles" id="tiles"></div>
+        </div>
+      `);
+
+      const tilesEl = document.getElementById("tiles");
+      tilesEl.innerHTML = "";
+
+      TILES.forEach((t, idx) => {
+        const done = state.doneTiles[idx];
+        const tile = document.createElement("div");
+        tile.className = "tile" + (done ? " done" : "");
+        const coverSrc = mediaUrl(t.cover) || makePlaceholder(mediaLabel(t.cover));
+        tile.innerHTML = `
+          <img src="${coverSrc}" alt="Episode ${idx+1}">
+          <div class="tileOverlay"></div>
+          <div class="watched">Watched ✅</div>
+          <div class="tileMeta">
+            <div class="tileTag">💘 ${t.tag}</div>
+            <p class="tileName">${t.title}</p>
+            <p class="tileDesc">${t.desc}</p>
+          </div>
+        `;
+        tile.onclick = () => openEpisode(idx);
+        tilesEl.appendChild(tile);
+      });
+    }
+
+    function ensureEpisodeUploadPrompt(){
+      let prompt = document.getElementById("episodeUploadPrompt");
+      if(prompt) return prompt;
+
+      prompt = document.createElement("div");
+      prompt.id = "episodeUploadPrompt";
+      prompt.style.cssText = "display:none; min-height:320px; align-items:center; justify-content:center; text-align:center; padding:24px; background:rgba(0,0,0,.35); border:1px dashed rgba(255,255,255,.28); border-radius:8px;";
+      tileVideo.parentElement.appendChild(prompt);
+      return prompt;
+    }
+
+    function openEpisode(idx){
+      const nxt = nextIncomplete();
+      if(nxt !== null && idx !== nxt){
+        playSafe(sparkle, .35);
+        return;
+      }
+
+      state.currentIndex = idx;
+      const t = TILES[idx];
+
+      episodeOverlay.style.display = "flex";
+      episodeOverlay.style.background = `radial-gradient(900px 700px at 50% 35%, ${t.theme.a}, ${t.theme.b})`;
+
+      epHeaderTitle.textContent = t.title;
+      epHeaderSub.textContent = t.desc;
+
+      qBlock.style.display = "block";
+      doneBlock.style.display = "none";
+      qText.textContent = t.question;
+      qYes.disabled = false;
+      qNo.disabled = false;
+
+      const uploadPrompt = ensureEpisodeUploadPrompt();
+      tileVideo.pause();
+      tileVideo.removeAttribute("src");
+      tileVideo.load();
+
+      if(!hasMedia(t.video)){
+        qText.textContent = "Upload this episode video first, then the question continues here.";
+        qYes.disabled = true;
+        qNo.disabled = true;
+        tileVideo.style.display = "none";
+        uploadPrompt.style.display = "flex";
+        uploadPrompt.innerHTML = `
+          <div>
+            <h2 class="episodeH2" style="margin-bottom:10px;">Upload this episode video</h2>
+            <p class="small" style="margin-bottom:14px;">Choose the private video for this episode.</p>
+            <label class="primary" for="episodeVideoUpload" style="cursor:pointer;">Choose video</label>
+            <input id="episodeVideoUpload" type="file" accept="video/*" style="display:none;">
+          </div>
+        `;
+        document.getElementById("episodeVideoUpload").onchange = async (e) => {
+          const file = e.target.files && e.target.files[0];
+          if(!file) return;
+          await saveMediaFile(t.video, file);
+          openEpisode(idx);
+        };
+        return;
+      }
+
+      uploadPrompt.style.display = "none";
+      tileVideo.style.display = "block";
+      tileVideo.src = mediaUrl(t.video);
+      tileVideo.load();
+
+      const p = tileVideo.play();
+      if(p && p.catch) p.catch(()=>{});
+
+      const answer = () => finishEpisode();
+      qYes.onclick = answer;
+      qNo.onclick = answer;
+    }
+
+    function finishEpisode(){
+      playSafe(sparkle, .35);
+      hearts(1200);
+
+      state.doneTiles[state.currentIndex] = true;
+
+      qBlock.style.display = "none";
+      doneBlock.style.display = "block";
+
+      const nxt = nextIncomplete();
+      if(nxt === null){
+        doneText.textContent = "All 6 episodes complete… ready for the finale? 💍";
+        nextBtn.textContent = "Finale ▶";
+      } else {
+        doneText.textContent = `Episode complete. Next up: Episode ${nxt+1}.`;
+        nextBtn.textContent = "Next episode ▶";
+      }
+    }
+
+    function closeEpisodeOverlay(){
+      tileVideo.pause();
+      episodeOverlay.style.display = "none";
+      state.currentIndex = null;
+    }
+
+    closeEpisode.onclick = closeEpisodeOverlay;
+
+    episodeOverlay.addEventListener("click", (e) => {
+      const box = document.getElementById("episodeBox");
+      if(!box.contains(e.target)) closeEpisodeOverlay();
+    });
+
+    async function openFinaleWithTransition(){
+      setProgress(6);
+      // show transition first
+      finaleIntro.style.display = "flex";
+      await sleep(2200);
+      finaleIntro.style.display = "none";
+
+      finaleTitle.textContent = templateConfig.finaleTitle || "Finale";
+      finaleSub.innerHTML = linesHtml([templateConfig.finaleSubtitle || ""]);
+      finaleOverlay.style.display = "flex";
+      const runtime = Math.round((Date.now() - state.startedAt)/1000);
+      finaleMeta.textContent = `Private screening - Runtime: ${runtime}s - Viewer: ${templateConfig.viewerName || "Viewer"}`;
+    }
+
+    function closeFinale(){ finaleOverlay.style.display = "none"; }
+
+    function moveNoButton(){
+      spawnLineOutsideFinaleBox();
+      const dx = rand(-260, 260);
+      const dy = rand(-110, 110);
+      noFinale.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    }
+
+    noFinale.style.transition = "transform 140ms ease-out";
+    noFinale.style.willChange = "transform";
+    noFinale.addEventListener("mouseenter", moveNoButton);
+    noFinale.addEventListener("click", moveNoButton);
+
+    async function playCreditsMontage(){
+      state.creditsRunning = true;
+      creditsOverlay.style.display = "block";
+      endCard.style.display = "none";
+      creditsText.innerHTML = `
+        <h1 class="title" style="font-size:clamp(26px,3vw,44px); margin:0 0 6px 0;">${escapeHtml(templateConfig.creditsTitle)}</h1>
+        <p class="subtitle" style="margin:0; opacity:.9;">${escapeHtml(templateConfig.creditsSubtitle)}</p>
+      `;
+      endCard.innerHTML = `
+        <div>
+          <h1 class="title" style="margin-bottom:10px;">
+            <span style="color:var(--rose);">${escapeHtml(templateConfig.endTitle)}</span>
+          </h1>
+          <p class="subtitle" style="margin-bottom:0;">
+            ${escapeHtml(templateConfig.endSubtitle)}
+          </p>
+        </div>
+      `;
+      creditsText.style.opacity = "1";
+
+      celebrationAudio.currentTime = 0;
+      playSafe(celebrationAudio, 0.9);
+
+      imgA.classList.remove("show");
+      imgB.classList.remove("show");
+      state.showingA = true;
+
+      const perSlide = 4000; // ✅ slow 4 sec each
+
+      const readyCredits = CREDITS_IMAGES.filter(src => hasMedia(src));
+      if(!readyCredits.length){
+        creditsText.style.opacity = "0";
+        await sleep(500);
+        endCard.style.display = "flex";
+        hearts(2600);
+        return;
+      }
+
+      for(let i=0;i<readyCredits.length;i++){
+        if(!state.creditsRunning) return;
+
+        const nextSrc = mediaUrl(readyCredits[i]);
+
+        const showEl = state.showingA ? imgA : imgB;
+        const hideEl = state.showingA ? imgB : imgA;
+
+        hideEl.classList.remove("show");
+        showEl.src = nextSrc;
+
+        await new Promise(res => {
+          const t = setTimeout(res, 450);
+          showEl.onload = () => { clearTimeout(t); res(); };
+          showEl.onerror = () => { clearTimeout(t); res(); };
+        });
+
+        requestAnimationFrame(() => showEl.classList.add("show"));
+        await sleep(perSlide);
+
+        state.showingA = !state.showingA;
+      }
+
+      creditsText.style.opacity = "0";
+      imgA.classList.remove("show");
+      imgB.classList.remove("show");
+      await sleep(500);
+
+      endCard.style.display = "flex";
+      hearts(2600);
+    }
+
+    yesFinale.addEventListener("click", async () => {
+      closeFinale();
+      playSafe(sparkle, .35);
+      hearts(1400);
+      await playCreditsMontage();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape"){
+        if(episodeOverlay.style.display === "flex") closeEpisodeOverlay();
+        if(finaleOverlay.style.display === "flex") closeFinale();
+        if(finaleIntro.style.display === "flex") finaleIntro.style.display = "none";
+      }
+    });
+
+    nextBtn.onclick = () => {
+      closeEpisodeOverlay();
+      const nxt = nextIncomplete();
+      if(nxt === null) openFinaleWithTransition();
+      else openEpisode(nxt);
+    };
+
+    homeBtn.onclick = () => {
+      closeEpisodeOverlay();
+      screenHome();
+    };
+
+    function screenSetupRequired(){
+      setProgress(1);
+      render(`
+        <div>
+          <h1 class="title">Setup needed</h1>
+          <p class="subtitle">
+            Build the template first, then launch the experience from the builder.
+          </p>
+          <div class="row">
+            <button class="primary" id="openBuilder">Open builder</button>
+          </div>
+        </div>
+      `);
+      document.getElementById("openBuilder").onclick = () => {
+        window.location.href = "index.html";
+      };
+    }
+
+    async function startPlayer(){
+      const hasSetup = Boolean(localStorage.getItem(TEMPLATE_STORAGE_KEY));
+      loadTemplateConfig();
+      await loadSavedMediaFiles();
+      applyDefaultTemplateMedia();
+      state.name = templateConfig.viewerName || "Viewer";
+
+      if(!hasSetup){
+        screenSetupRequired();
+        return;
+      }
+
+      screenStart();
+    }
+
+    // start
+    startPlayer();
+  </script>
+</body>
+</html>
